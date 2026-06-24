@@ -1,29 +1,39 @@
- 'St. John's Volunteer Hub'.
+# St. John's Volunteer Hub (Prototype)
 
-The web application would use NLP to match a volunteer's skills and interests (extracted from profile) with the needs of various non-profit organizations. This provides a more personalized and efficient way for people to find meaningful volunteer opportunities.
+**NLP-powered volunteer–opportunity matching** prototype for nonprofit coordination in St. John's, NL.
 
-Overview
-The St. John's Volunteer Hub is a full-stack web application designed to bridge the gap between community members eager to volunteer and non-profit organizations in the St. John's area. 
-This platform leverages modern web development practices and Natural Language Processing (NLP) to create a more efficient and personalized matching system.
+![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?style=flat-square&logo=jupyter&logoColor=white)
+![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?style=flat-square)
 
-Key Features
-Volunteer Profiles: Users can create profiles, detailing their skills, interests, and availability.
+---
 
-Organization Listings: Non-profit organizations can register and post specific volunteer opportunities, outlining the required skills and a description of the task.
+## Architecture (roadmap)
 
-NLP-Powered Matching Engine: core feature utilizes an NLP model to analyze the text in volunteer profiles and job descriptions, providing a relevance score to suggest the best matches. This moves beyond simple keyword matching to understand the context and intent of the user's input.
+```
+┌──────────────┐   skills NLP  ┌──────────────┐   match    ┌──────────────┐
+│ Volunteers   │ ────────────► │  Flask API   │ ─────────► │ Opportunities│
+│ (profiles)   │               │  + spaCy     │            │ (nonprofits) │
+└──────────────┘               └──────────────┘            └──────────────┘
+                                      ▲
+                               ┌──────┴───────┐
+                               │ React UI     │  (planned)
+                               └──────────────┘
+```
 
-Interactive Web Interface: A clean, responsive user interface allows for easy navigation, searching, and application management.
+> **Current state:** `nonprofit.ipynb` contains a Flask + spaCy backend prototype. Full-stack React + PostgreSQL is on the roadmap.
 
-Secure Authentication: Secure user and organization login and data protection.
+---
 
-Technologies 
-Frontend: React, HTML, CSS ( framework like Tailwind   - Material-UI)
+## Quick start
 
-Backend: Python (Flask - Django)
+```bash
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
+jupyter notebook nonprofit.ipynb
+```
 
-Database: PostgreSQL  
+---
 
-NLP: A Python library spaCy / NLTK for text processing, with a pre-trained model for matching.
+## License
 
-Containerization: Docker  
+MIT — see [LICENSE](LICENSE).
