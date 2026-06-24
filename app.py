@@ -36,12 +36,15 @@ def _load_nlp():
     try:
         return spacy.load("en_core_web_sm")
     except OSError:
-        from spacy.cli import download
+        try:
+            from spacy.cli import download
 
-        download("en_core_web_sm")
-        import spacy
+            download("en_core_web_sm")
+            import spacy
 
-        return spacy.load("en_core_web_sm")
+            return spacy.load("en_core_web_sm")
+        except Exception:
+            return None
 
 
 nlp = _load_nlp()
@@ -65,17 +68,17 @@ def health():
 
 @app.post("/api/match")
 def match_opportunities():
-  data = request.get_json(silent=True) or {}
-  skills = (data.get("skills") or "communication leadership").strip()
-  interests = (data.get("interests") or "environment community").strip()
-  volunteer_text = f"{skills} {interests}"
+    data = request.get_json(silent=True) or {}
+    skills = (data.get("skills") or "communication leadership").strip()
+    interests = (data.get("interests") or "environment community").strip()
+    volunteer_text = f"{skills} {interests}"
 
-  matches = []
-  for opp in OPPORTUNITIES:
-    score = _score(volunteer_text, opp["description"])
-    matches.append({"opportunity": opp, "relevance_score": score})
-  matches.sort(key=lambda m: m["relevance_score"], reverse=True)
-  return jsonify(matches)
+    matches = []
+    for opp in OPPORTUNITIES:
+        score = _score(volunteer_text, opp["description"])
+        matches.append({"opportunity": opp, "relevance_score": score})
+    matches.sort(key=lambda m: m["relevance_score"], reverse=True)
+    return jsonify(matches)
 
 
 if __name__ == "__main__":

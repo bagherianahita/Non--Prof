@@ -20,7 +20,7 @@
                                └──────────────┘
 ```
 
-> **Current state:** `nonprofit.ipynb` contains a Flask + spaCy backend prototype. Full-stack React + PostgreSQL is on the roadmap.
+> **Runnable demo:** `app.py` (Flask API). The Jupyter notebook is exploratory only.
 
 ---
 
