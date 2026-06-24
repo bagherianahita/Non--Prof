@@ -37,6 +37,12 @@ curl -X POST http://localhost:5000/api/match -H "Content-Type: application/json"
 
 Empty `{}` uses default skills/interests. Or send: `{"skills":"social media","interests":"youth mental health"}`
 
+| | URL |
+|---|-----|
+| **API** | http://localhost:5000 |
+| **Health check** | http://localhost:5000/health |
+| **Match endpoint** | `POST http://localhost:5000/api/match` |
+
 ---
 
 ## License
