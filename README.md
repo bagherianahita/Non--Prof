@@ -24,13 +24,18 @@
 
 ---
 
-## Quick start
+## Quick start (employers — no API keys)
 
 ```bash
 pip install -r requirements.txt
-python -m spacy download en_core_web_sm
-jupyter notebook nonprofit.ipynb
+python app.py
 ```
+
+```bash
+curl -X POST http://localhost:5000/api/match -H "Content-Type: application/json" -d "{}"
+```
+
+Empty `{}` uses default skills/interests. Or send: `{"skills":"social media","interests":"youth mental health"}`
 
 ---
 
