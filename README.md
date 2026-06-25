@@ -31,17 +31,13 @@ pip install -r requirements.txt
 python app.py
 ```
 
-```bash
-curl -X POST http://localhost:5000/api/match -H "Content-Type: application/json" -d "{}"
-```
-
-Empty `{}` uses default skills/interests. Or send: `{"skills":"social media","interests":"youth mental health"}`
+Open **http://localhost:5000** — browser demo with volunteer presets. Optional NLP: `python -m spacy download en_core_web_sm`
 
 | | URL |
 |---|-----|
-| **API** | http://localhost:5000 |
+| **Web UI (demo)** | http://localhost:5000 |
 | **Health check** | http://localhost:5000/health |
-| **Match endpoint** | `POST http://localhost:5000/api/match` |
+| **Match API** | `POST http://localhost:5000/api/match` |
 
 ---
 

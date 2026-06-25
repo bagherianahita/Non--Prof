@@ -1,9 +1,14 @@
-"""St. John's Volunteer Hub — Flask API with NLP opportunity matching."""
+"""St. John's Volunteer Hub — Flask API + browser matching demo."""
 
-from flask import Flask, jsonify, request
+from pathlib import Path
+
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__)
+STATIC_DIR = Path(__file__).parent / "static"
+DEFAULT_PORT = 5000
+
+app = Flask(__name__, static_folder=str(STATIC_DIR))
 CORS(app)
 
 OPPORTUNITIES = [
@@ -27,46 +32,51 @@ OPPORTUNITIES = [
     },
 ]
 
+_nlp = None
 
-def _load_nlp():
+
+def _get_nlp():
+    global _nlp
+    if _nlp is not None:
+        return _nlp
     try:
         import spacy
-    except ImportError:
-        return None
-    try:
-        return spacy.load("en_core_web_sm")
-    except OSError:
+
         try:
-            from spacy.cli import download
-
-            download("en_core_web_sm")
-            import spacy
-
-            return spacy.load("en_core_web_sm")
-        except Exception:
-            return None
-
-
-nlp = _load_nlp()
+            _nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            _nlp = None
+    except ImportError:
+        _nlp = None
+    return _nlp
 
 
 def _score(volunteer_text: str, description: str) -> float:
+    nlp = _get_nlp()
     if nlp is None:
         words = set(volunteer_text.lower().split())
-        desc = set(description.lower().split())
-        overlap = len(words & desc)
-        return round(min(0.95, 0.3 + overlap * 0.1), 2)
+        desc_words = set(description.lower().split())
+        overlap = len(words & desc_words)
+        return round(min(0.95, 0.35 + overlap * 0.12), 2)
     v_doc = nlp(volunteer_text)
     o_doc = nlp(description)
     return round(float(v_doc.similarity(o_doc)), 2)
 
 
-@app.get("/health")
+@app.route("/")
+def demo_ui():
+    demo_path = STATIC_DIR / "demo.html"
+    if demo_path.exists():
+        return send_from_directory(STATIC_DIR, "demo.html")
+    return jsonify({"message": "Volunteer Hub API", "health": "/health", "match": "POST /api/match"})
+
+
+@app.route("/health")
 def health():
-    return {"status": "ok", "opportunities": len(OPPORTUNITIES)}
+    return jsonify({"status": "ok", "opportunities": len(OPPORTUNITIES), "nlp": _get_nlp() is not None})
 
 
-@app.post("/api/match")
+@app.route("/api/match", methods=["POST"])
 def match_opportunities():
     data = request.get_json(silent=True) or {}
     skills = (data.get("skills") or "communication leadership").strip()
@@ -82,6 +92,6 @@ def match_opportunities():
 
 
 if __name__ == "__main__":
-    print("Volunteer Hub API — demo defaults: skills=communication leadership, interests=environment community")
-    print("POST http://localhost:5000/api/match  with JSON body or empty {} for defaults")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    print(f"Volunteer Hub: http://localhost:{DEFAULT_PORT}")
+    print("Browser demo with presets — optional: python -m spacy download en_core_web_sm")
+    app.run(host="127.0.0.1", port=DEFAULT_PORT, debug=False)

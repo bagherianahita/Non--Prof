@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>St. John's Volunteer Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-rose-50 text-slate-800 min-h-screen">
+  <div class="max-w-5xl mx-auto p-8">
+    <header class="mb-8 flex flex-wrap gap-4 justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-rose-900">St. John's Volunteer Hub</h1>
+        <p class="text-slate-600">Match volunteers to nonprofit opportunities — NLP demo, no API keys</p>
+      </div>
+      <div id="status" class="px-4 py-2 rounded-lg bg-rose-100 text-rose-800 font-semibold text-sm">Checking…</div>
+    </header>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-white p-6 rounded-xl shadow border border-rose-100">
+        <h2 class="text-xl font-semibold mb-4">Volunteer profile</h2>
+        <label class="block text-sm font-medium mb-1">Preset</label>
+        <select id="preset" class="w-full border rounded-lg p-2 mb-4">
+          <option value="environment">Environment & leadership</option>
+          <option value="youth">Youth mental health & social media</option>
+          <option value="kitchen">Community kitchen & cooking</option>
+        </select>
+        <label class="block text-sm font-medium mb-1">Skills</label>
+        <input id="skills" class="w-full border rounded-lg p-2 mb-3" />
+        <label class="block text-sm font-medium mb-1">Interests</label>
+        <input id="interests" class="w-full border rounded-lg p-2 mb-4" />
+        <button id="btnMatch" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg">Find matches</button>
+        <p id="error" class="text-red-600 text-sm mt-3 hidden"></p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow border border-rose-100">
+        <h2 class="text-xl font-semibold mb-4">Top matches</h2>
+        <div id="results" class="space-y-3 text-sm text-slate-500">Loading matches…</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const PRESETS = {
+      environment: { skills: 'communication leadership organization', interests: 'environment community conservation' },
+      youth: { skills: 'social media instagram tiktok writing', interests: 'youth mental health awareness' },
+      kitchen: { skills: 'cooking food prep serving', interests: 'community hunger relief' },
+    };
+
+    function loadPreset(key) {
+      const p = PRESETS[key] || PRESETS.environment;
+      document.getElementById('skills').value = p.skills;
+      document.getElementById('interests').value = p.interests;
+    }
+
+    async function runMatch() {
+      document.getElementById('error').classList.add('hidden');
+      const payload = {
+        skills: document.getElementById('skills').value,
+        interests: document.getElementById('interests').value,
+      };
+      const res = await fetch('/api/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        document.getElementById('error').textContent = 'Match failed — is the server running?';
+        document.getElementById('error').classList.remove('hidden');
+        return;
+      }
+      const matches = await res.json();
+      document.getElementById('results').innerHTML = matches.map((m, i) => `
+        <div class="p-4 rounded-lg border ${i === 0 ? 'border-rose-300 bg-rose-50' : 'border-slate-200'}">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <p class="font-bold text-slate-800">${m.opportunity.title}</p>
+              <p class="text-xs text-slate-500">${m.opportunity.organization}</p>
+            </div>
+            <span class="text-xs font-bold px-2 py-1 rounded bg-white border">${(m.relevance_score * 100).toFixed(0)}% match</span>
+          </div>
+          <p class="mt-2 text-slate-600">${m.opportunity.description}</p>
+        </div>
+      `).join('');
+    }
+
+    fetch('/health')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(() => {
+        document.getElementById('status').textContent = 'API Online';
+        loadPreset('environment');
+        runMatch();
+      })
+      .catch(() => {
+        document.getElementById('status').textContent = 'API Offline';
+        document.getElementById('results').textContent = 'Run: pip install -r requirements.txt && python app.py';
+      });
+
+    document.getElementById('preset').onchange = (e) => { loadPreset(e.target.value); runMatch(); };
+    document.getElementById('btnMatch').onclick = runMatch;
+  </script>
+</body>
+</html>
