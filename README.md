@@ -1,4 +1,4 @@
-# St. John's Volunteer Hub (Prototype)
+﻿# St. John's Volunteer Hub (Prototype)
 
 **NLP-powered volunteer–opportunity matching** prototype for nonprofit coordination in St. John's, NL.
 
@@ -24,7 +24,7 @@
 
 ---
 
-## Quick start (employers — no API keys)
+## Quick start
 
 ```bash
 pip install -r requirements.txt
